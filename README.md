@@ -27,7 +27,7 @@ Explore meu portfólio online clicando [aqui](https://portfolio-flask-victorh.on
 
 1. Clone o repositório:
     ```bash
-    git clone [<UREPOSITÓRIO>](https://github.com/VictorHugo842/portfolio-flask)
+    git clone https://github.com/VictorHugo842/portfolio-flask
     ```
 2. Instale as dependências:
     ```bash

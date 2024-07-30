@@ -1,6 +1,10 @@
-# Portfólio Desenvolvido em Flask
+# Portfólio Profissional em Flask
 
-Bem-vindo ao meu portfólio! Este projeto apresenta meus projetos e habilidades.
+Bem-vindo ao meu portfólio!
+
+## Acesse Online
+
+Você pode acessar meu portfólio online através deste [link](https://portfolio-flask-victorh.onrender.com/).
 
 ## Tecnologias Utilizadas
 
@@ -10,6 +14,15 @@ Bem-vindo ao meu portfólio! Este projeto apresenta meus projetos e habilidades.
 - **Bootstrap**
 - **Jinja2**
 
+## Sessões
+
+- **Início**
+- **Sobre**
+- **Habilidades**
+- **Currículo**
+- **Portfólio**
+- **Contato**
+
 ## Como Executar
 
 1. Clone o repositório.
@@ -17,14 +30,9 @@ Bem-vindo ao meu portfólio! Este projeto apresenta meus projetos e habilidades.
     ```bash
     pip install -r requirements.txt
     ```
-3. Configure o banco de dados.
-4. Execute a aplicação:
+3. Execute a aplicação:
     ```bash
     flask run
     ```
-
-## Acesse Online
-
-Você pode acessar meu portfólio online através deste [link](https://portfolio-flask-victorh.onrender.com/).
 
 ---

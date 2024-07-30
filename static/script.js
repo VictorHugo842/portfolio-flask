@@ -71,5 +71,8 @@ form.addEventListener("submit", (event) => {
 
 // remove mensagem de alerta de envio após 5 segundos
 setTimeout(()=>{
-    document.querySelector("#alerta").style.display = "none";
-}, 5000)
+    const alerta = document.querySelector("#alerta");
+    if (alerta) {
+        alerta.style.display = "none";
+    }
+}, 5000);

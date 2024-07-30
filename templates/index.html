@@ -56,8 +56,8 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#projetos"><i class="bi bi-collection"></i>
-                        Projetos
+                    <a class="nav-link" href="#portfolio"><i class="bi bi-collection"></i>
+                        Portfólio
                     </a>
                 </li>
                 <li class="nav-item">
@@ -95,7 +95,7 @@
                         HTML e comecei a criar blogs como hobby.
 
                         Em 2022, ingressei no curso técnico de Informática para Internet, e foi durante a aula de Lógica
-                        de Programação que me apaixonei pela programação.
+                        de Programação que me identifiquei com a programação.
                         Durante o curso, consegui uma oportunidade de estágio em Desenvolvimento de Aplicações Web, onde
                         adquiri experiência em diversas tecnologias e pude contribuir para projetos importantes com
                         autonomia e de forma autodidata.
@@ -109,7 +109,7 @@
                     <img class="img-fluid shadow" src="../static/img/admin.jpg" alt="Foto do Admin" data-anime="left">
                 </div>
                 <div class="col-md-8" data-anime="right">
-                    <h3>Desenvolvedor de Software</h3>
+                    <h3 class="mt-3">Desenvolvedor de Software</h3>
                     <p>Desenvolvedor com experiência em desenvolvimento de aplicações web utilizando Python e
                         JavaScript. Tenho experiência com banco de dados MariaDB e prática em metodologia ágil Scrum.
                     </p>
@@ -136,7 +136,7 @@
                             <ul class="list-group list-group-flush fs-5">
                                 <li class="list-group-item">
                                     Hobby:
-                                    <span class="fw-lighter">Andar de moto</span>
+                                    <span class="fw-lighter">Moto, música, e programação</span>
                                 </li>
                                 <li class="list-group-item">
                                     Cidade:
@@ -152,7 +152,7 @@
 
                     <p> Atualmente, estou cursando o tecnólogo em Gestão da Tecnologia da Informação, trabalhando em
                         projetos pessoais e buscando novas oportunidades para
-                        contribuir em projetos relevantes e continuar ampliando meus conhecimentos na área.
+                        contribuir com minha dedicação e continuar ampliando meus conhecimentos na área.
                     </p>
 
                 </div>
@@ -315,6 +315,13 @@
                             <div class="progress-bar" data-anime="left" style="width: 70%">70%</div>
                         </div>
                     </div>
+                    <div class="col-md-6">
+                        <p class="mt-3 mb-0">MySQL</p>
+                        <div class="progress" role="progressbar" aria-label="Example with label" aria-valuenow="25"
+                            aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress-bar" data-anime="left" style="width: 70%">70%</div>
+                        </div>
+                    </div>
                 </div>
                 <br>
                 <hr class="w-50 me-auto ms-auto">
@@ -409,11 +416,11 @@
             </div>
         </section>
 
-        <!-- projetos -->
-        <section class="section-bg mt-5" id="projetos">
+        <!-- portfolio -->
+        <section class="section-bg mt-5" id="portfolio">
             <div class="container pb-5 pt-5" data-anime="left">
-                <h2 class="pb-4">Projetos</h2>
-                <div id="carouselProjetos class="carousel carousel-dark slide">
+                <h2 class="pb-4">Portfólio</h2>
+                    <div id="carouselPortfolio" class="carousel carousel-dark slide">
                     <div class="carousel-inner">
                         <div class="carousel-item active" data-bs-interval="10000">
                             <div class="row row-cols-1 row-cols-md-3 g-4">
@@ -421,8 +428,11 @@
                                     <div class="card h-100">
                                         <img src="../static/img/portflask.png" class="card-img-top" alt="Plataforma">
                                         <div class="card-body">
-                                            <h5 class="card-title">Portfólio desenvolvido em Python e Flask</h5>
-                                            <p class="card-text">Desenvolvimento de portfólio utilizando Python e Flask.
+                                            <h5 class="card-title">Portfólio desenvolvido em Python/Flask</h5>
+                                            <p class="card-text">
+                                                <p class="card-text">
+                                                    Desenvolvimento de portfólio utilizando HTML, CSS, Git, GitHub, Python, Flask e Bootstrap. Com estruturação de containers, colunas e linhas, garantindo design responsivo.
+                                                </p>                                                
                                             </p>
                                             <div class="d-flex justify-content-center">
                                                 <a href="https://github.com/VictorHugo842/portfolio-flask"
@@ -438,10 +448,10 @@
                                     <div class="card h-100">
                                         <img src="../static/img/stockmaster.png" class="card-img-top" alt="Plataforma">
                                         <div class="card-body">
-                                            <h5 class="card-title">StockMaster - Controle de Estoque em PHP</h5>
+                                            <h5 class="card-title">Controle de estoque em PHP e MySQL</h5>
                                             <p class="card-text">
                                                 Desenvolvimento de aplicação web para controle de estoque, utilizando a
-                                                linguagem de programação PHP e banco de dados. - TCC (ETEC)</p>
+                                                linguagem de programação PHP e o banco de dados MySQL, o projeto foi para o Trabalho de Conclusão de Curso(TCC) da ETEC.</p>
                                             <div class="d-flex justify-content-center">
                                                 <a href="https://github.com/VictorHugo842/stockmaster-php-tcc-etec"
                                                     target="_blank" class="btn btn-outline-secondary me-2"><i
@@ -471,10 +481,11 @@
                                 </div>
                             </div>
                         </div>
+
+
                         <!-- <div class="carousel-item" data-bs-interval="2000">
                             <div class="row row-cols-1 row-cols-md-3 g-4">
                                 <div class="col">
-
                                     <div class="card h-100">
                                         <img src="../static/img/desafio01dartjs.png" class="card-img-top"
                                             alt="Plataforma">
@@ -497,14 +508,12 @@
                                 </div>
                                 <div class="col">
                                     <div class="card h-100">
-                                        <img src="../static/img/icon.png" class="card-img-top" alt="Plataforma">
+                                        <img src="../static/img/discuss-frappe-all.png" class="card-img-top" alt="Plataforma">
                                         <div class="card-body">
-                                            <h5 class="card-title">Card title</h5>
-                                            <p class="card-text">This is a longer card with supporting text below as a
-                                                natural lead-in to additional content. This content is a little bit
-                                                longer.</p>
+                                            <h5 class="card-title">Colaboração em Comunidades do Frappe</h5>
+                                            <p class="card-text">Contribuição e participação no Discuss Frappe: compartilhamento de códigos, resolução de problemas, feedback construtivo e troca de conhecimento contínua.</p>
                                             <div class="d-flex justify-content-center">
-                                                <a href="#" target="_blank" class="btn btn-outline-primary"><i
+                                                <a href="https://discuss.frappe.io/" target="_blank" class="btn btn-outline-primary"><i
                                                         class="bi bi-link-45deg"></i></a>
                                             </div>
                                         </div>
@@ -527,13 +536,16 @@
                                 </div>
                             </div>
                         </div> -->
+
+
+
                     </div>
-                    <!-- <button class="carousel-control-prev" type="button" data-bs-target="#carouselProjetos"
+                    <!-- <button class="carousel-control-prev" type="button" data-bs-target="#carouselPortfolio"
                         data-bs-slide="prev">
                         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                         <span class="visually-hidden">Previous</span>
                     </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#carouselProjetos"
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselPortfolio"
                         data-bs-slide="next">
                         <span class="carousel-control-next-icon" aria-hidden="true"></span>
                         <span class="visually-hidden">Next</span>

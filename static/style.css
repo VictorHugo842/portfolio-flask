@@ -118,6 +118,7 @@ section#inicio span#subtitle {
 
 section#inicio div#arraste {
     width: 9rem;
+    margin-bottom:10px;
 }
 
 section#inicio div#arraste a {

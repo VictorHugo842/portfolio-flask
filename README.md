@@ -1,4 +1,4 @@
-# Portfólio Profissional em Python/Flask
+# Portfólio Profissional desenvolvido em Python/Flask
 
 Bem-vindo ao meu portfólio!
 

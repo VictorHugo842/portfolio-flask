@@ -6,6 +6,21 @@ Bem-vindo ao meu portfólio!
 
 Explore meu portfólio online clicando [aqui](https://portfolio-flask-victorh.onrender.com/).
 
+## Como Executar Localmente
+
+1. Clone o repositório:
+    ```bash
+    git clone https://github.com/VictorHugo842/portfolio-flask
+    ```
+2. Instale as dependências:
+    ```bash
+    pip install -r requirements.txt
+    ```
+3. Execute a aplicação:
+    ```bash
+    flask run
+    ```
+
 ## Tecnologias Utilizadas
 
 - **Flask**: Framework web em Python
@@ -22,20 +37,5 @@ Explore meu portfólio online clicando [aqui](https://portfolio-flask-victorh.on
 - **Currículo**: Detalhes sobre minha experiência profissional
 - **Portfólio**: Projetos desenvolvidos
 - **Contato**: Forma de entrar em contato
-
-## Como Executar Localmente
-
-1. Clone o repositório:
-    ```bash
-    git clone https://github.com/VictorHugo842/portfolio-flask
-    ```
-2. Instale as dependências:
-    ```bash
-    pip install -r requirements.txt
-    ```
-3. Execute a aplicação:
-    ```bash
-    flask run
-    ```
 
 

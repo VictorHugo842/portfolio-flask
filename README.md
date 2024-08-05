@@ -1,30 +1,41 @@
-# Portfólio Desenvolvido em Flask
+# Portfólio profissional desenvolvido em Python/Flask
 
-Bem-vindo ao meu portfólio! Este projeto apresenta meus projetos e habilidades.
+Bem-vindo ao meu portfólio!
 
-## Tecnologias Utilizadas
+## Acesso Online
 
-- **Flask**
-- **Python**
-- **HTML/CSS/JavaScript**
-- **Bootstrap**
-- **Jinja2**
+Explore meu portfólio online clicando [aqui](https://portfolio-flask-victorh.onrender.com/).
 
-## Como Executar
+## Como Executar Localmente
 
-1. Clone o repositório.
+1. Clone o repositório:
+    ```bash
+    git clone https://github.com/VictorHugo842/portfolio-flask
+    ```
 2. Instale as dependências:
     ```bash
     pip install -r requirements.txt
     ```
-3. Configure o banco de dados.
-4. Execute a aplicação:
+3. Execute a aplicação:
     ```bash
     flask run
     ```
 
-## Acesse Online
+## Tecnologias Utilizadas
 
-Você pode acessar meu portfólio online através deste [link](https://portfolio-flask-victorh.onrender.com/).
+- **Flask**: Framework web em Python
+- **Python**: Linguagem de programação
+- **HTML/CSS/JavaScript**: Tecnologias para desenvolvimento web
+- **Bootstrap**: Framework Web para estilização e responsividade
+- **Jinja2**: Motor de templates para Python
 
----
+## Sessões
+
+- **Início**: Página principal do portfólio
+- **Sobre**: Informações sobre mim
+- **Habilidades**: Competências e tecnologias que domino
+- **Currículo**: Detalhes sobre minha experiência profissional
+- **Portfólio**: Projetos desenvolvidos
+- **Contato**: Forma de entrar em contato
+
+

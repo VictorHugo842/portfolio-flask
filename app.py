@@ -71,17 +71,28 @@ def geolocalizacao():
 		
 	app.logger.debug(user_ip + "AQUIII!!!")
 
-	token = "4355ba2b437018"  
-	ip_address = request.args.get('ip', user_ip) 
+
+	token = os.getenv("USERLOCATION")
+	ip_address = request.args.get('ip', user_ip)
 	
-	# fazendo a requisição à API de geolocalização
-	response = requests.get(f"http://ipinfo.io/{ip_address}?token={token}")
-	
+	headers = {
+		'Authorization': f'Bearer {token}',
+		'Content-Type': 'application/json'
+	}
+
+	# Fazendo a requisição à API de geolocalização
+	url = f"https://api.invertexto.com/v1/geoip/{ip_address}"
+	response = requests.get(url, headers=headers)
+
+
+	app.logger.debug(f"Status Code: {response.status_code}")
+	app.logger.debug(f"Response Text: {response.text}")
+
 	if response.status_code == 200:
 		data = response.json()  # converte a resposta em JSON
 		return jsonify(data)  # retorna os dados em formato JSON
 	else:
-		return jsonify({"error": "Não foi possível obter as informações de geolocalização."}), 400
+		return response.text
 
 # verifica se o script está sendo executado diretamente
 if __name__ == "__main__":

@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 import os
 import requests
 load_dotenv()
+import logging
 
 # cria a instância do aplicativo Flask
 app = Flask(__name__)
@@ -24,6 +25,9 @@ mail_settings = {
 
 app.config.update(mail_settings)
 mail = Mail(app)
+
+# configura o nível de log para DEBUG(debug, error, info, warning, critical)
+app.logger.setLevel(logging.DEBUG)
 
 # toda rota é seguida de uma função
 @app.route("/")

@@ -1,8 +1,9 @@
-from flask import Flask, render_template, redirect, request, flash
+from flask import Flask, render_template, redirect, request, flash, jsonify
 from flask_mail import Mail, Message
 from contato import Contato
 from dotenv import load_dotenv
 import os
+import requests
 load_dotenv()
 
 # cria a instância do aplicativo Flask
@@ -55,6 +56,23 @@ def send():
 		mail.send(msg)
 		flash("Mensagem enviada com sucesso!")
 	return redirect("/")
+
+@app.route("/geolocalizacao", methods=["GET"])
+def geolocalizacao():
+	token = "4355ba2b437018"  
+	user_ip = request.remote_addr  
+	ip_address = request.args.get('ip', user_ip) 
+
+	print(ip_address)
+	
+	# fazendo a requisição à API de geolocalização
+	response = requests.get(f"http://ipinfo.io/{ip_address}?token={token}")
+	
+	if response.status_code == 200:
+		data = response.json()  # converte a resposta em JSON
+		return jsonify(data)  # retorna os dados em formato JSON
+	else:
+		return jsonify({"error": "Não foi possível obter as informações de geolocalização."}), 400
 
 # verifica se o script está sendo executado diretamente
 if __name__ == "__main__":

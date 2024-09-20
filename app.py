@@ -63,9 +63,9 @@ def geolocalizacao():
 	if request.environ.get('HTTP_X_FORWARDED_FOR') is None:
 		user_ip = request.environ['REMOTE_ADDR']
 	else:
-		user_ip = x_forwarded_for.split(',')[0].strip()
+		user_ip = request.environ['HTTP_X_FORWARDED_FOR'].split(',')[0].strip()
 		
-	app.logger.debug(user_ip + "AQUIII !!!")
+	app.logger.debug(user_ip + "AQUIII!!!")
 
 	token = "4355ba2b437018"  
 	ip_address = request.args.get('ip', user_ip) 

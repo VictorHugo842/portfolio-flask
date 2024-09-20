@@ -59,11 +59,16 @@ def send():
 
 @app.route("/geolocalizacao", methods=["GET"])
 def geolocalizacao():
-	token = "4355ba2b437018"  
-	user_ip = request.remote_addr  
-	ip_address = request.args.get('ip', user_ip) 
 
-	print(ip_address)
+	if request.environ.get('HTTP_X_FORWARDED_FOR') is None:
+		user_ip = request.environ['REMOTE_ADDR']
+	else:
+		user_ip = request.environ['HTTP_X_FORWARDED_FOR']
+		
+	print(request.environ['HTTP_X_FORWARDED_FOR'])
+	print(user_ip)
+	token = "4355ba2b437018"  
+	ip_address = request.args.get('ip', user_ip) 
 	
 	# fazendo a requisição à API de geolocalização
 	response = requests.get(f"http://ipinfo.io/{ip_address}?token={token}")

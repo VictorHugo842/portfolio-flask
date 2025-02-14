@@ -86,8 +86,21 @@ form.addEventListener("submit", (event) => {
                 alerta.style.position = "fixed";
                 alerta.style.bottom = "20px";
                 alerta.style.left = "50%";
-                alerta.style.transform = "translateX(-50%)";
+                alerta.style.transform = "translateX(-50%)";  // Garante que a mensagem fique centralizada
                 alerta.style.zIndex = 1050;
+
+                // ajustes para o alerta
+                alerta.style.maxWidth = "90%";  // Limita a largura máxima do alerta
+                alerta.style.padding = "10px 20px";  // Adiciona algum padding para deixar o texto confortável
+                alerta.style.textAlign = "center";  // Centraliza o texto dentro do alerta
+                alerta.style.whiteSpace = "nowrap";  // Impede que o texto quebre em várias linhas, se necessário
+                alerta.style.wordWrap = "break-word";  // Quebra a palavra se ela ultrapassar a largura máxima
+
+                // estilo adicional para garantir o alinhamento correto
+                alerta.style.display = "inline-block";  // Faz o alerta se ajustar ao conteúdo de tamanho
+                alerta.style.borderRadius = "5px";  // Adiciona bordas arredondadas para um visual mais agradável
+                alerta.style.fontSize = "16px";  // Tamanho da fonte
+
 
                 // faz o alerta desaparecer após 5 segundos
                 setTimeout(() => {

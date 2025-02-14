@@ -100,7 +100,6 @@ def validar_recaptcha(response):
 
 @app.after_request
 def after_request(response):
-    """Modifica a resposta para adicionar cabeçalhos de segurança."""
     
     # adiciona cabeçalhos de segurança para prevenir XSS, ataques clickjacking e MITM
     response.headers['X-Content-Type-Options'] = 'nosniff'  # previne que o navegador "adivinhe" o tipo de conteúdo
@@ -128,25 +127,26 @@ def send():
         
         # validações
         if not nome or not email or not mensagem:
-            # são campos obrigatórios
+            # são campos required, porém, valida no back-end também
             logger.warning("Campos obrigatórios não preenchidos")
-            return jsonify({"message": "Todos os campos são obrigatórios!", "category": "alert-danger", "icon": "exclamation-triangle-fill"}), 400
+            return jsonify({"message": "Todos os campos são obrigatórios", "category": "alert-danger", "icon": "exclamation-triangle-fill"}), 400
 
+        # limite de caracteres
         if len(mensagem) > 500:
             logger.warning(f"Limite de caracteres de 500 excedido para mensagem: {email}")
-            return jsonify({"message": "Limite de caracteres de 500 excedido para mensagem", "category": "alert-danger", "icon": "exclamation-triangle-fill"}), 400
+            return jsonify({"message": "Limite de caracteres excedido para o campo de mensagem", "category": "alert-danger", "icon": "exclamation-triangle-fill"}), 400
 
         if not validar_email(email):
             logger.warning(f"E-mail inválido: {email}")
-            return jsonify({"message": "E-mail inválido!", "category": "alert-danger", "icon": "exclamation-triangle-fill"}), 400
+            return jsonify({"message": "E-mail inválido", "category": "alert-danger", "icon": "exclamation-triangle-fill"}), 400
 
         if email_temporario(email):
             logger.warning(f"E-mail temporário detectado: {email}")
-            return jsonify({"message": "E-mails temporários não são permitidos!", "category": "alert-danger", "icon": "exclamation-triangle-fill"}), 400
+            return jsonify({"message": "E-mails temporários não são permitidos", "category": "alert-danger", "icon": "exclamation-triangle-fill"}), 400
 
         if not validar_recaptcha(recaptcha_response):
             logger.warning("Falha na verificação reCAPTCHA")
-            return jsonify({"message": "Verificação reCAPTCHA falhou!", "category": "alert-danger", "icon": "exclamation-triangle-fill"}), 400
+            return jsonify({"message": "Verificação reCAPTCHA falhou", "category": "alert-danger", "icon": "exclamation-triangle-fill"}), 400
 
         recipients = os.getenv("RECIPIENTS", "").split(",")
 
@@ -168,7 +168,7 @@ def send():
         try:
             mail.send(msg)
             logger.info(f"Mensagem enviada com sucesso de {nome} ({email})")
-            return jsonify({"message": "Mensagem enviada com sucesso!", "category": "alert-success", "icon": "check-circle-fill"}), 200
+            return jsonify({"message": "Mensagem enviada com sucesso", "category": "alert-success", "icon": "check-circle-fill"}), 200
         except Exception as e:
             logger.error(f"Erro ao enviar mensagem de {nome} ({email}): {e}")
             return jsonify({"message": f"Erro ao enviar a mensagem. Tente novamente mais tarde. Erro: {e}", "category": "alert-danger", "icon": "exclamation-triangle-fill"}), 500

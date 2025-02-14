@@ -14,6 +14,10 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "64bit")
 
+# configuração do logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 # configuração do Flask-Mail
 app.config.update({
     "MAIL_SERVER": "smtp.gmail.com",
@@ -21,16 +25,12 @@ app.config.update({
     "MAIL_USE_TLS": False,
     "MAIL_USE_SSL": True,
     "MAIL_USERNAME": os.getenv("EMAIL"),
-    "MAIL_PASSWORD": os.getenv("PASSWORD")
+    "MAIL_PASSWORD": os.getenv("PASSWORD") # 2fa senha do app google
 })
 mail = Mail(app)
 
 # configuração do Flask-Limiter para evitar spam
 limiter = Limiter(get_remote_address, app=app, default_limits=["5 per minute"])
-
-# configuração do logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 def validar_email(email):
     """Valida o formato do e-mail."""
@@ -40,8 +40,15 @@ def validar_email(email):
 def email_temporario(email):
     """Verifica se o e-mail pertence a um serviço temporário."""
     try:
+        # realiza a requisição GET para verificar se o e-mail é temporário
         response = requests.get(f"https://open.kickbox.com/v1/disposable/{email}", timeout=5)
-        return response.json().get("disposable", False)
+        
+        if response.status_code == 200:
+            data = response.json()
+            return data.get("disposable", False)
+        else:
+            logger.error(f"Erro ao verificar e-mail temporário: Código de status {response.status_code}")
+            return False
     except requests.RequestException as e:
         logger.error(f"Erro ao verificar e-mail temporário: {e}")
         return False
@@ -62,51 +69,56 @@ def index():
     site_key = os.getenv("RECAPTCHA_SITE_KEY")  # reCAPTCHA
     return render_template("index.html", site_key=site_key)
 
-
 # ajax
 @app.route("/send", methods=["POST"])
-@limiter.limit("3 per minute")
+@limiter.limit("3 per minute")  # limite de 3 requisições por minuto
 def send():
-    nome = request.form.get("nome", "").strip()
-    email = request.form.get("email", "").strip()
-    mensagem = request.form.get("mensagem", "").strip()
-    recaptcha_response = request.form.get("g-recaptcha-response")
-
-    # Validações
-    if not nome or not email or not mensagem:
-        return jsonify({"message": "Todos os campos são obrigatórios!", "category": "alert-danger", "icon": "exclamation-triangle-fill"}), 400
-
-    if not validar_email(email):
-        return jsonify({"message": "E-mail inválido!", "category": "alert-danger", "icon": "exclamation-triangle-fill"}), 400
-
-    if email_temporario(email):
-        return jsonify({"message": "E-mails temporários não são permitidos!", "category": "alert-danger", "icon": "exclamation-triangle-fill"}), 400
-
-    if not validar_recaptcha(recaptcha_response):
-        return jsonify({"message": "Verificação reCAPTCHA falhou!", "category": "alert-danger", "icon": "exclamation-triangle-fill"}), 400
-
-    recipients = os.getenv("RECIPIENTS", "").split(",")
-
-    msg = Message(
-        subject=f"Nova mensagem de {nome}",
-        sender=app.config.get("MAIL_USERNAME"),
-        recipients=recipients,
-        body=f"""
-        Mensagem recebida do portfólio! 💬
-
-        Nome: {nome}
-        E-mail: {email}
-
-        Mensagem:
-        {mensagem}
-        """
-    )
-
     try:
-        mail.send(msg)
-        return jsonify({"message": "Mensagem enviada com sucesso!", "category": "alert-success", "icon": "check-circle-fill"}), 200
+        nome = request.form.get("nome", "").strip()
+        email = request.form.get("email", "").strip()
+        mensagem = request.form.get("mensagem", "").strip()
+        recaptcha_response = request.form.get("g-recaptcha-response") # validação recaptcha
+
+        # validações
+        if not nome or not email or not mensagem:
+            return jsonify({"message": "Todos os campos são obrigatórios!", "category": "alert-danger", "icon": "exclamation-triangle-fill"}), 400
+
+        if not validar_email(email):
+            return jsonify({"message": "E-mail inválido!", "category": "alert-danger", "icon": "exclamation-triangle-fill"}), 400
+
+        if email_temporario(email):
+            return jsonify({"message": "E-mails temporários não são permitidos!", "category": "alert-danger", "icon": "exclamation-triangle-fill"}), 400
+
+        if not validar_recaptcha(recaptcha_response):
+            return jsonify({"message": "Verificação reCAPTCHA falhou!", "category": "alert-danger", "icon": "exclamation-triangle-fill"}), 400
+
+        recipients = os.getenv("RECIPIENTS", "").split(",")
+
+        msg = Message(
+            subject=f"Nova mensagem de {nome}",
+            sender=app.config.get("MAIL_USERNAME"),
+            recipients=recipients,
+            body=f"""
+            Mensagem recebida do portfólio! 💬
+
+            Nome: {nome}
+            E-mail: {email}
+
+            Mensagem:
+            {mensagem}
+            """
+        )
+
+        try:
+            mail.send(msg)
+            return jsonify({"message": "Mensagem enviada com sucesso!", "category": "alert-success", "icon": "check-circle-fill"}), 200
+        except Exception as e:
+            return jsonify({"message": f"Erro ao enviar a mensagem. Tente novamente mais tarde. Erro: {e}", "category": "alert-danger", "icon": "exclamation-triangle-fill"}), 500
+
     except Exception as e:
-        return jsonify({"message": f"Erro ao enviar a mensagem. Tente novamente mais tarde. Erro: {e}", "category": "alert-danger", "icon": "exclamation-triangle-fill"}), 500
+        # limite de requisições atingido
+        return jsonify({"message": "Você atingiu o limite de envio. Tente novamente em um minuto.", "category": "alert-warning", "icon": "exclamation-triangle-fill"}), 429
+
 
 
 if __name__ == "__main__":

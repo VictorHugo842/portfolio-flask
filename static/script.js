@@ -93,16 +93,16 @@ form.addEventListener("submit", (event) => {
                 setTimeout(() => {
                     alerta.classList.remove("show");
                     setTimeout(() => {
-                        alerta.remove(); // Remove o alerta após o fade-out
+                        alerta.remove(); // remove o alerta após o fade-out
                     }, 150);
                 }, 3000);
 
-                // Reseta o formulário, reCAPTCHA e os botões
+                // reseta o formulário, reCAPTCHA e os botões
                 form.reset();
-                grecaptcha.reset(); // Reseta o reCAPTCHA
+                grecaptcha.reset(); // reseta o reCAPTCHA
                 btnEnviarLoader.style.display = "none";
                 btnEnviar.style.display = "block";
-                form.classList.remove('was-validated'); // Remove a classe de validação para que os campos não fiquem vermelhos
+                form.classList.remove('was-validated'); // remove a classe de validação evita que os campos não fiquem vermelhos
             })
             .catch(error => {
                 console.error("Erro:", error);

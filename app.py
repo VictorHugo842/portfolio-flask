@@ -1,69 +1,113 @@
-from flask import Flask, render_template, redirect, request, flash, jsonify
+from flask import Flask, render_template, request, redirect, flash, jsonify
 from flask_mail import Mail, Message
-from contato import Contato
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from dotenv import load_dotenv
 import os
-import requests
+import re
 import logging
+import requests
 
+# carregar variáveis de ambiente
 load_dotenv()
 
-# cria a instância do aplicativo Flask
 app = Flask(__name__)
+app.secret_key = os.getenv("SECRET_KEY", "64bit")
 
-app.secret_key = "64bit"
-
-mail_settings = {
-	"MAIL_SERVER":"smtp.gmail.com",
-	"MAIL_PORT":465,
-	"MAIL_USE_TLS": False,
-	"MAIL_USE_SSL": True,
-	"MAIL_USERNAME": os.getenv("EMAIL"), 
-	"MAIL_PASSWORD":os.getenv("PASSWORD")
-}
-
-#tentaasorte -> remember
-
-app.config.update(mail_settings)
+# configuração do Flask-Mail
+app.config.update({
+    "MAIL_SERVER": "smtp.gmail.com",
+    "MAIL_PORT": 465,
+    "MAIL_USE_TLS": False,
+    "MAIL_USE_SSL": True,
+    "MAIL_USERNAME": os.getenv("EMAIL"),
+    "MAIL_PASSWORD": os.getenv("PASSWORD")
+})
 mail = Mail(app)
 
-# configura o nível de log para DEBUG(debug, error, info, warning, critical)
-app.logger.setLevel(logging.DEBUG)
+# configuração do Flask-Limiter para evitar spam
+limiter = Limiter(get_remote_address, app=app, default_limits=["5 per minute"])
 
-# toda rota é seguida de uma função
+# configuração do logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+def validar_email(email):
+    """Valida o formato do e-mail."""
+    regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+    return re.match(regex, email)
+
+def email_temporario(email):
+    """Verifica se o e-mail pertence a um serviço temporário."""
+    try:
+        response = requests.get(f"https://open.kickbox.com/v1/disposable/{email}", timeout=5)
+        return response.json().get("disposable", False)
+    except requests.RequestException as e:
+        logger.error(f"Erro ao verificar e-mail temporário: {e}")
+        return False
+
+def validar_recaptcha(response):
+    """Valida o reCAPTCHA v2."""
+    secret_key = os.getenv("RECAPTCHA_SECRET_KEY")
+    payload = {"secret": secret_key, "response": response}
+    try:
+        r = requests.post("https://www.google.com/recaptcha/api/siteverify", data=payload, timeout=5)
+        return r.json().get("success", False)
+    except requests.RequestException as e:
+        logger.error(f"Erro ao validar reCAPTCHA: {e}")
+        return False
+
 @app.route("/")
 def index():
-	return render_template("index.html")
+    site_key = os.getenv("RECAPTCHA_SITE_KEY")  # reCAPTCHA
+    return render_template("index.html", site_key=site_key)
 
-# envio de e-mail
-@app.route("/send", methods=["GET","POST"])
+
+# ajax
+@app.route("/send", methods=["POST"])
+@limiter.limit("3 per minute")
 def send():
-	if request.method == "POST":
-		# chama função que atribui as variavéis recebido do form
-		formContato = Contato(
-			request.form["nome"],
-			request.form["email"],
-			request.form["mensagem"]
-		)
+    nome = request.form.get("nome", "").strip()
+    email = request.form.get("email", "").strip()
+    mensagem = request.form.get("mensagem", "").strip()
+    recaptcha_response = request.form.get("g-recaptcha-response")
 
-		# mensagem formata em f-string
-		msg = Message(
-			subject = f'{formContato.nome} te enviou uma mensagem através do portfólio.',
-			sender = app.config.get("MAIL_USERNAME"),
-			recipients=["victor99.santos@gmail.com","giovana99.fagundes@gmail.com"],
-			body = f'''O usuário {formContato.nome} com o e-mail {formContato.email} te enviou a seguinte mensagem:
+    # Validações
+    if not nome or not email or not mensagem:
+        return jsonify({"message": "Todos os campos são obrigatórios!", "category": "alert-danger", "icon": "exclamation-triangle-fill"}), 400
 
-			{formContato.mensagem}
-			'''
-		)
-		
-		# envio
-		mail.send(msg)
-		flash("Mensagem enviada com sucesso!")
-	return redirect("/")
+    if not validar_email(email):
+        return jsonify({"message": "E-mail inválido!", "category": "alert-danger", "icon": "exclamation-triangle-fill"}), 400
+
+    if email_temporario(email):
+        return jsonify({"message": "E-mails temporários não são permitidos!", "category": "alert-danger", "icon": "exclamation-triangle-fill"}), 400
+
+    if not validar_recaptcha(recaptcha_response):
+        return jsonify({"message": "Verificação reCAPTCHA falhou!", "category": "alert-danger", "icon": "exclamation-triangle-fill"}), 400
+
+    recipients = os.getenv("RECIPIENTS", "").split(",")
+
+    msg = Message(
+        subject=f"Nova mensagem de {nome}",
+        sender=app.config.get("MAIL_USERNAME"),
+        recipients=recipients,
+        body=f"""
+        Mensagem recebida do portfólio! 💬
+
+        Nome: {nome}
+        E-mail: {email}
+
+        Mensagem:
+        {mensagem}
+        """
+    )
+
+    try:
+        mail.send(msg)
+        return jsonify({"message": "Mensagem enviada com sucesso!", "category": "alert-success", "icon": "check-circle-fill"}), 200
+    except Exception as e:
+        return jsonify({"message": f"Erro ao enviar a mensagem. Tente novamente mais tarde. Erro: {e}", "category": "alert-danger", "icon": "exclamation-triangle-fill"}), 500
 
 
-# verifica se o script está sendo executado diretamente
 if __name__ == "__main__":
-	# inicia o servidor Flask em modo dev
-	app.run(debug=True)
+    app.run(debug=True)

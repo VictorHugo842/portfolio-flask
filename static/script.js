@@ -9,7 +9,6 @@ menuMobile.addEventListener('click', () => {
     body.classList.toggle("menu-nav-active"); /* volta o menu */
 });
 
-
 /* desabilita menu ao clicar em item e muda icone para list */
 const navItem = document.querySelectorAll(".nav-item");
 
@@ -20,13 +19,12 @@ navItem.forEach(item => {
             menuMobile.classList.replace("bi-x", "bi-list");
         }
     })
-})
+});
 
 /* animação dos itens com o atributo data anime */
 const item = document.querySelectorAll("[data-anime]");
 
 const animeScroll = () => {
-    /* pega o topo de acordo com a tela */
     const windowTop = window.pageYOffset + window.innerHeight * 0.85;
 
     item.forEach(element => {
@@ -36,43 +34,82 @@ const animeScroll = () => {
             element.classList.remove("animate");
         }
     })
-}
+};
 
-animeScroll()
+animeScroll();
 
 window.addEventListener("scroll", () => {
     animeScroll();
-})
+});
 
-
-// muda botão de enviar para botão de carregamento
-// movido do click para o submit do form, evitando bug.
-const btnEnviar = document.querySelector("#btn-enviar")
-const btnEnviarLoader = document.querySelector("#btn-enviar-loader")
+// muda botão de enviar para botão de carregamento após a validação do reCAPTCHA
+const btnEnviar = document.querySelector("#btn-enviar");
+const btnEnviarLoader = document.querySelector("#btn-enviar-loader");
 const form = document.querySelector("#form-contato");
 
-// btnEnviar.addEventListener("click", () => {
-//     btnEnviarLoader.style.display = "block";
-//     btnEnviar.style.display = " none";
-// })
-
 form.addEventListener("submit", (event) => {
+    event.preventDefault(); // impede o envio padrão para usar AJAX
+
+    // verifica a validade do formulário
     if (!form.checkValidity()) {
-        event.preventDefault(); 
-        event.stopPropagation(); 
+        event.stopPropagation();
     } else {
-        btnEnviarLoader.style.display = "block";
-        btnEnviar.style.display = "none";
-    }
+        // verifica se o reCAPTCHA foi completado
+        var recaptchaResponse = grecaptcha.getResponse();
+        if (recaptchaResponse.length === 0) {
+            alert("Por favor, complete a verificação do reCAPTCHA.");
+        } else {
+            // altera o botão para mostrar "enviando" e oculta o botão "enviar", também da como validado os campos do form
+            btnEnviarLoader.style.display = "block";
+            btnEnviar.style.display = "none";
+            form.classList.add('was-validated');
 
-    // front-end de validação com sucesso
-    form.classList.add('was-validated');
-})
+            // faz a requisição AJAX
+            const formData = new FormData(form);
+            formData.append("g-recaptcha-response", recaptchaResponse); // adiciona o reCAPTCHA ao formData
 
-// remove mensagem de alerta de envio após 5 segundos
-setTimeout(()=>{
-    const alerta = document.querySelector("#alerta");
-    if (alerta) {
-        alerta.style.display = "none";
+            fetch("/send", {
+                method: "POST",
+                body: formData,
+            })
+            .then(response => response.json()) // recebe a resposta em JSON
+            .then(data => {
+
+                // exibe a mensagem de feedback
+                const alerta = document.createElement("div");
+                alerta.classList.add("alert", "alert-dismissible", "fade", "show", data.category);
+                alerta.setAttribute("role", "alert");
+                alerta.innerHTML = `<i class="bi bi-${data.icon} me-1"></i> ${data.message}`;
+
+                // exibe a mensagem na tela no canto inferior
+                document.body.appendChild(alerta);
+                alerta.style.position = "fixed";
+                alerta.style.bottom = "20px";
+                alerta.style.left = "50%";
+                alerta.style.transform = "translateX(-50%)";
+                alerta.style.zIndex = 1050;
+
+                // faz o alerta desaparecer após 5 segundos
+                setTimeout(() => {
+                    alerta.classList.remove("show");
+                    setTimeout(() => {
+                        alerta.remove(); // Remove o alerta após o fade-out
+                    }, 150);
+                }, 3000);
+
+                // Reseta o formulário, reCAPTCHA e os botões
+                form.reset();
+                grecaptcha.reset(); // Reseta o reCAPTCHA
+                btnEnviarLoader.style.display = "none";
+                btnEnviar.style.display = "block";
+                form.classList.remove('was-validated'); // Remove a classe de validação para que os campos não fiquem vermelhos
+            })
+            .catch(error => {
+                console.error("Erro:", error);
+                alert("Ocorreu um erro, tente novamente mais tarde.");
+                btnEnviarLoader.style.display = "none";
+                btnEnviar.style.display = "block";
+            });
+        }
     }
-}, 5000);
+});

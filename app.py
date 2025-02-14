@@ -73,8 +73,11 @@ def validar_recaptcha(response):
 
 @app.before_request
 def before_request():
-    """Adiciona cabeçalhos de segurança para prevenir XSS e outras vulnerabilidades."""
-    pass  # não faz nada, apenas prepara antes de processar a requisição
+    """Realiza validações de segurança antes do processamento da requisição."""
+    if not (request.is_secure or request.host.startswith('127.0.0.1')):  # permite HTTP localmente
+        print("Conexão não segura")
+        return jsonify({"error": "Connection must be over HTTPS"}), 403
+    
 
 @app.after_request
 def after_request(response):
@@ -85,8 +88,9 @@ def after_request(response):
     response.headers['X-XSS-Protection'] = '1; mode=block'   # ativa a proteção contra ataques XSS
     response.headers['X-Frame-Options'] = 'DENY'             # impede que a página seja carregada dentro de um iframe
     response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'  # força o uso de HTTPS
-    
+
     return response
+    
 
 @app.route("/")
 def index():

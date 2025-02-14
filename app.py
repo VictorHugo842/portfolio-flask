@@ -135,6 +135,10 @@ def send():
             logger.warning("Campos obrigatórios não preenchidos")
             return jsonify({"message": "Todos os campos são obrigatórios!", "category": "alert-danger", "icon": "exclamation-triangle-fill"}), 400
 
+        if len(mensagem) > 500:
+            logger.warning(f"Limite de caracteres de 500 excedido para mensagem: {email}")
+            return jsonify({"message": "Limite de caracteres de 500 excedido para mensagem", "category": "alert-danger", "icon": "exclamation-triangle-fill"}), 400
+
         if not validar_email(email):
             logger.warning(f"E-mail inválido: {email}")
             return jsonify({"message": "E-mail inválido!", "category": "alert-danger", "icon": "exclamation-triangle-fill"}), 400

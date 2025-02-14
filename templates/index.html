@@ -689,26 +689,13 @@
             </div>
         </section>
 
-        <!-- contato. -->
+       <!-- contato. -->
         <section class="pt-5 pb-5" id="contato">
             <div class="container mb-5">
                 <h2 class="pt-3 pb-3">Contato</h2>
                 <div class="row">
-                    <div class="col-md-5">
-                        <div class="card p-5 shadow border-0" data-anime="up">
-                            <div class="email">
-                                <h4><i class="bi bi-envelope me-2"></i>E-mail:</h4>
-                                <p>victor99.santos@gmail.com</p>
-                            </div>
-                            <div class="endereco">
-                                <h4><i class="bi bi-geo-alt me-1"></i>Localização:</h4>
-                                <p>Várzea Paulista, SP</p>
-                            </div>
-                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7333.816078491788!2d-46.85192155414898!3d-23.210021755633612!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94cf20c87d3acfd9%3A0x92f6a35eaaabd9a7!2sAv.%20Fern%C3%A3o%20Dias%20Paes%20Leme%20-%20Vila%20Santa%20Terezinha%2C%20V%C3%A1rzea%20Paulista%20-%20SP!5e0!3m2!1spt-BR!2sbr!4v1725595003972!5m2!1spt-BR!2sbr" width="400" height="300" style="border:0;" allowfullscreen="" loading="lazy" class="w-100"></iframe>
-                        </div>
-                    </div>
-        
-                    <div class="col-md-7 mt-5 mt-md-0">
+                    <!-- Formulário de Contato -->
+                    <div class="col-md-6 mt-5 mt-md-0">
                         <div class="card p-5 h-100 shadow border-0" data-anime="left">
                             <form id="form-contato" class="row g-3" action="/send" method="POST">
                                 <div class="col-md-6">
@@ -721,14 +708,14 @@
                                 </div>
                                 <div class="col-12">
                                     <label for="mensagem" class="form-label">Mensagem:</label>
-                                    <textarea class="form-control" id="mensagem" name="mensagem" placeholder="Digite sua mensagem" rows="5" required></textarea>
+                                    <textarea class="form-control" id="mensagem" name="mensagem" placeholder="Digite sua mensagem" rows="5" required maxlength="500"></textarea>
                                 </div>
-        
+
                                 <!-- reCAPTCHA -->
                                 <div class="col-12 d-flex justify-content-center mt-3">
-                                    <div class="g-recaptcha" data-sitekey="{{ site_key }}"></div>
+                                    <div class="g-recaptcha" data-sitekey="{{ site_key }}" data-size="normal"></div>
                                 </div>
-        
+
                                 <div class="col-12 d-flex justify-content-center mt-4">
                                     <button id="btn-enviar" type="submit" class="btn btn-primary">Enviar</button>
                                     <button id="btn-enviar-loader" class="btn btn-primary" type="button" disabled style="display: none;">
@@ -739,9 +726,25 @@
                             </form>
                         </div>
                     </div>
+
+                    <!-- Mapa -->
+                    <div class="col-md-6">
+                        <div class="card p-5 shadow border-0" data-anime="up">
+                            <div class="email">
+                                <h4><i class="bi bi-envelope me-2"></i>E-mail:</h4>
+                                <p>victor99.santos@gmail.com</p>
+                            </div>
+                            <div class="endereco">
+                                <h4><i class="bi bi-geo-alt me-1"></i>Localização:</h4>
+                                <p>Várzea Paulista, SP</p>
+                            </div>
+                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7333.816078491788!2d-46.85192155414898!3d-23.210021755633612!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94cf20c87d3acfd9%3A0x92f6a35eaaabd9a7!2sAv.%20Fern%C3%A3o%20Dias%20Paes%20Leme%20-%20Vila%20Santa%20Terezinha%2C%20V%C3%A1rzea%20Paulista%20-%20SP!5e0!3m2!1spt-BR!2sbr!4v1725595003972!5m2!1spt-BR!2sbr" width="400" height="300" style="border:0;" allowfullscreen="" loading="lazy" class="w-100"></iframe>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
+
 
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}

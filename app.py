@@ -40,9 +40,11 @@ def sanitizar_entrada(texto):
 
 # validação do e-mail
 def validar_email(email):
-    """Valida o formato do e-mail."""
-    regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
-    return re.match(regex, email)
+    """Valida o formato do e-mail usando uma regex mais robusta."""
+    regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
+    if re.match(regex, email):
+        return True
+    return False
 
 # verifica e-mail temporário
 def email_temporario(email):
@@ -59,17 +61,37 @@ def email_temporario(email):
         logger.error(f"Erro ao verificar e-mail temporário: {e}")
         return False
 
-# valida o reCAPTCHA
 def validar_recaptcha(response):
     """Valida o reCAPTCHA v2."""
     secret_key = os.getenv("RECAPTCHA_SECRET_KEY")
-    payload = {"secret": secret_key, "response": response}
-    try:
-        r = requests.post("https://www.google.com/recaptcha/api/siteverify", data=payload, timeout=5)
-        return r.json().get("success", False)
-    except requests.RequestException as e:
-        logger.error(f"Erro ao validar reCAPTCHA: {e}")
+    if not secret_key:
+        logger.error("Chave secreta do reCAPTCHA não configurada.")
         return False
+    
+    payload = {"secret": secret_key, "response": response}
+    
+    try:
+        # requisição ao Google para validar o reCAPTCHA
+        r = requests.post("https://www.google.com/recaptcha/api/siteverify", data=payload, timeout=10) 
+        r.raise_for_status()  # verifica se a requisição foi bem-sucedida (status 2xx)
+        
+        # valida a resposta
+        result = r.json()
+        
+        if result.get("success"):
+            logger.info("reCAPTCHA validado com sucesso.")
+            return True
+        else:
+            # se não for válido, loga a mensagem de erro
+            logger.warning(f"Falha na validação do reCAPTCHA: {result.get('error-codes', 'sem erro específico')}")
+            return False
+    
+    except requests.exceptions.Timeout:
+        logger.error("Erro: tempo de conexão com o reCAPTCHA excedido.")
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Erro ao validar reCAPTCHA: {e}")
+    
+    return False
 
 @app.before_request
 def before_request():

@@ -31,7 +31,7 @@ app.config.update({
 mail = Mail(app)
 
 # configuração do Flask-Limiter para evitar spam
-limiter = Limiter(get_remote_address, app=app, default_limits=["5 per minute"])
+limiter = Limiter(get_remote_address, app=app, default_limits=["10 per minute"])
 
 # sanitização dos campos de texto
 def sanitizar_entrada(texto):
@@ -93,12 +93,12 @@ def validar_recaptcha(response):
     
     return False
 
-@app.before_request
-def before_request():
-    """Realiza validações de segurança antes do processamento da requisição."""
-    if not (request.is_secure or request.host.startswith('127.0.0.1')):  # permite HTTP localmente
-        print("Conexão não segura")
-        return jsonify({"error": "Connection must be over HTTPS"}), 403
+# @app.before_request
+# def before_request():
+#     """Realiza validações de segurança antes do processamento da requisição."""
+#     if not (request.is_secure or request.host.startswith('127.0.0.1')):  # permite HTTP localmente
+#         print("Conexão não segura")
+#         return jsonify({"error": "Connection must be over HTTPS"}), 403
     
 
 @app.after_request

@@ -31,7 +31,7 @@ app.config.update({
 mail = Mail(app)
 
 # configuração do Flask-Limiter para evitar spam
-limiter = Limiter(get_remote_address, app=app, default_limits=["30 per minute"])
+limiter = Limiter(get_remote_address, app=app, default_limits=["5 per minute"])
 
 # sanitização dos campos de texto
 def sanitizar_entrada(texto):

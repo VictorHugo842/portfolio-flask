@@ -74,17 +74,18 @@ def validar_recaptcha(response):
 @app.before_request
 def before_request():
     """Adiciona cabeçalhos de segurança para prevenir XSS e outras vulnerabilidades."""
-    
-    response = jsonify() # cria uma resposta vazia usando jsonify
-    response.headers['X-Content-Type-Options'] = 'nosniff'  # previne que o navegador "adivinhe" o tipo de conteúdo de uma resposta, evita ataques de sniffing de tipo
-    response.headers['X-XSS-Protection'] = '1; mode=block' # ativa a proteção contra ataques XSS no navegador
-    response.headers['X-Frame-Options'] = 'DENY'  # impede que a página seja carregada dentro de um iframe, previne ataques clickjacking
+    pass  # não faz nada, apenas prepara antes de processar a requisição
 
-    # força o uso de HTTPS para comunicação segura, prevenindo ataques man-in-the-middle (MITM)
-    # define o tempo que o navegador deve lembrar dessa política (1 ano) e aplica a política para todos os subdomínios
-    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+@app.after_request
+def after_request(response):
+    """Modifica a resposta para adicionar cabeçalhos de segurança."""
     
-    # retorna a resposta com os cabeçalhos de segurança aplicados
+    # adiciona cabeçalhos de segurança para prevenir XSS, ataques clickjacking e MITM
+    response.headers['X-Content-Type-Options'] = 'nosniff'  # previne que o navegador "adivinhe" o tipo de conteúdo
+    response.headers['X-XSS-Protection'] = '1; mode=block'   # ativa a proteção contra ataques XSS
+    response.headers['X-Frame-Options'] = 'DENY'             # impede que a página seja carregada dentro de um iframe
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'  # força o uso de HTTPS
+    
     return response
 
 @app.route("/")

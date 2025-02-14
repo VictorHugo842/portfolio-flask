@@ -95,10 +95,7 @@ def validar_recaptcha(response):
 
 # @app.before_request
 # def before_request():
-#     """Realiza validações de segurança antes do processamento da requisição."""
-#     if not (request.is_secure or request.host.startswith('127.0.0.1')):  # permite HTTP localmente
-#         print("Conexão não segura")
-#         return jsonify({"error": "Connection must be over HTTPS"}), 403
+#    pass
     
 
 @app.after_request

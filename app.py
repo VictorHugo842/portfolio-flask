@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, flash, jsonify
+from flask import Flask, render_template, request, jsonify
 from flask_mail import Mail, Message
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -7,6 +7,7 @@ import os
 import re
 import logging
 import requests
+import bleach
 
 # carregar variáveis de ambiente
 load_dotenv()
@@ -25,24 +26,29 @@ app.config.update({
     "MAIL_USE_TLS": False,
     "MAIL_USE_SSL": True,
     "MAIL_USERNAME": os.getenv("EMAIL"),
-    "MAIL_PASSWORD": os.getenv("PASSWORD") # 2fa senha do app google
+    "MAIL_PASSWORD": os.getenv("PASSWORD")  # 2fa senha do app google
 })
 mail = Mail(app)
 
 # configuração do Flask-Limiter para evitar spam
 limiter = Limiter(get_remote_address, app=app, default_limits=["5 per minute"])
 
+# sanitização dos campos de texto
+def sanitizar_entrada(texto):
+    """Sanitiza o texto removendo qualquer conteúdo potencialmente malicioso."""
+    return bleach.clean(texto, tags=[], attributes={}, strip=True)  # Usar strip=True para maior segurança
+
+# validação do e-mail
 def validar_email(email):
     """Valida o formato do e-mail."""
     regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
     return re.match(regex, email)
 
+# verifica e-mail temporário
 def email_temporario(email):
     """Verifica se o e-mail pertence a um serviço temporário."""
     try:
-        # realiza a requisição GET para verificar se o e-mail é temporário
         response = requests.get(f"https://open.kickbox.com/v1/disposable/{email}", timeout=5)
-        
         if response.status_code == 200:
             data = response.json()
             return data.get("disposable", False)
@@ -53,6 +59,7 @@ def email_temporario(email):
         logger.error(f"Erro ao verificar e-mail temporário: {e}")
         return False
 
+# valida o reCAPTCHA
 def validar_recaptcha(response):
     """Valida o reCAPTCHA v2."""
     secret_key = os.getenv("RECAPTCHA_SECRET_KEY")
@@ -64,32 +71,53 @@ def validar_recaptcha(response):
         logger.error(f"Erro ao validar reCAPTCHA: {e}")
         return False
 
+@app.before_request
+def before_request():
+    """Adiciona cabeçalhos de segurança para prevenir XSS e outras vulnerabilidades."""
+    
+    response = jsonify() # cria uma resposta vazia usando jsonify
+    response.headers['X-Content-Type-Options'] = 'nosniff'  # previne que o navegador "adivinhe" o tipo de conteúdo de uma resposta, evita ataques de sniffing de tipo
+    response.headers['X-XSS-Protection'] = '1; mode=block' # ativa a proteção contra ataques XSS no navegador
+    response.headers['X-Frame-Options'] = 'DENY'  # impede que a página seja carregada dentro de um iframe, previne ataques clickjacking
+
+    # força o uso de HTTPS para comunicação segura, prevenindo ataques man-in-the-middle (MITM)
+    # define o tempo que o navegador deve lembrar dessa política (1 ano) e aplica a política para todos os subdomínios
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    
+    # retorna a resposta com os cabeçalhos de segurança aplicados
+    return response
+
 @app.route("/")
 def index():
     site_key = os.getenv("RECAPTCHA_SITE_KEY")  # reCAPTCHA
     return render_template("index.html", site_key=site_key)
 
-# ajax
+# ajax para enviar o contato
 @app.route("/send", methods=["POST"])
 @limiter.limit("3 per minute")  # limite de 3 requisições por minuto
 def send():
     try:
-        nome = request.form.get("nome", "").strip()
-        email = request.form.get("email", "").strip()
-        mensagem = request.form.get("mensagem", "").strip()
-        recaptcha_response = request.form.get("g-recaptcha-response") # validação recaptcha
-
+        nome = sanitizar_entrada(request.form.get("nome", "").strip())
+        email = sanitizar_entrada(request.form.get("email", "").strip())
+        mensagem = sanitizar_entrada(request.form.get("mensagem", "").strip())
+        recaptcha_response = request.form.get("g-recaptcha-response")  # validação reCAPTCHA
+        
         # validações
         if not nome or not email or not mensagem:
+            # são campos obrigatórios
+            logger.warning("Campos obrigatórios não preenchidos")
             return jsonify({"message": "Todos os campos são obrigatórios!", "category": "alert-danger", "icon": "exclamation-triangle-fill"}), 400
 
         if not validar_email(email):
+            logger.warning(f"E-mail inválido: {email}")
             return jsonify({"message": "E-mail inválido!", "category": "alert-danger", "icon": "exclamation-triangle-fill"}), 400
 
         if email_temporario(email):
+            logger.warning(f"E-mail temporário detectado: {email}")
             return jsonify({"message": "E-mails temporários não são permitidos!", "category": "alert-danger", "icon": "exclamation-triangle-fill"}), 400
 
         if not validar_recaptcha(recaptcha_response):
+            logger.warning("Falha na verificação reCAPTCHA")
             return jsonify({"message": "Verificação reCAPTCHA falhou!", "category": "alert-danger", "icon": "exclamation-triangle-fill"}), 400
 
         recipients = os.getenv("RECIPIENTS", "").split(",")
@@ -111,15 +139,15 @@ def send():
 
         try:
             mail.send(msg)
+            logger.info(f"Mensagem enviada com sucesso de {nome} ({email})")
             return jsonify({"message": "Mensagem enviada com sucesso!", "category": "alert-success", "icon": "check-circle-fill"}), 200
         except Exception as e:
+            logger.error(f"Erro ao enviar mensagem de {nome} ({email}): {e}")
             return jsonify({"message": f"Erro ao enviar a mensagem. Tente novamente mais tarde. Erro: {e}", "category": "alert-danger", "icon": "exclamation-triangle-fill"}), 500
 
     except Exception as e:
-        # limite de requisições atingido
+        logger.error(f"Erro ao processar requisição: {e}")
         return jsonify({"message": "Você atingiu o limite de envio. Tente novamente em um minuto.", "category": "alert-warning", "icon": "exclamation-triangle-fill"}), 429
-
-
 
 if __name__ == "__main__":
     app.run(debug=True)

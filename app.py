@@ -36,7 +36,7 @@ limiter = Limiter(get_remote_address, app=app)
 # sanitização dos campos de texto
 def sanitizar_entrada(texto):
     """Sanitiza o texto removendo qualquer conteúdo potencialmente malicioso."""
-    return bleach.clean(texto, tags=[], attributes={}, strip=True)  # Usar strip=True para maior segurança
+    return bleach.clean(texto, tags=[], attributes={}, strip=True)  # usar strip=True para maior segurança
 
 # validação do e-mail
 def validar_email(email):
@@ -98,16 +98,9 @@ def validar_recaptcha(response):
 #    pass
     
 
-@app.after_request
-def after_request(response):
-    
-    # adiciona cabeçalhos de segurança para prevenir XSS, ataques clickjacking e MITM
-    response.headers['X-Content-Type-Options'] = 'nosniff'  # previne que o navegador "adivinhe" o tipo de conteúdo
-    response.headers['X-XSS-Protection'] = '1; mode=block'   # ativa a proteção contra ataques XSS
-    response.headers['X-Frame-Options'] = 'DENY'             # impede que a página seja carregada dentro de um iframe
-    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'  # força o uso de HTTPS
-
-    return response
+#@app.after_request
+#def after_request():
+#    pass
     
 
 @app.route("/")

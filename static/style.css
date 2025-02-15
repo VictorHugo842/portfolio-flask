@@ -24,8 +24,8 @@ body {
 #header .profile img {
     margin: 15px auto;
     display: block;
-    width: 150px;   /* tamanho desejado */
-    height: 150px;  /* formato redondo */
+    width: 140px;   /* tamanho desejado */
+    height: 140px;  /* formato redondo */
     object-fit: cover; /* garante que a imagem preencha o espaço sem distorcer */
     border: 8px solid #2c2f3f;
     border-radius: 50%; /* formato circular */
